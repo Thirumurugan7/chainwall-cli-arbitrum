@@ -1,6 +1,6 @@
 ---
 name: chainwall-operations
-description: Set up and operate Chainwall vaults, Safes, and onchain automation on Arbitrum One through the native CLI. Use for tenant onboarding, holdings reports, Lambdascript interactions, approval policies, execution, operational recovery, and complete builds such as a guarded USDC vault on Aave v3, a bot operator with a daily budget, two-approval treasury payouts, an emergency exit, a guarded Safe, a timelocked cap change, putting a protocol's admin role behind Chainwall, an ETH treasury that wraps to WETH and pays fixed recipients, a Uniswap v3 swap desk, a token issuer with a metered minter, or tenant governance (guardians, approved rule changes, tiered delays, delegated admin, admin rotation, owner handover).
+description: Set up and operate Chainwall vaults, Safes, and onchain automation on Arbitrum One through the native CLI. Use for tenant onboarding, holdings reports, Lambdascript interactions, approval policies, execution, operational recovery, and complete builds such as a guarded USDC vault on Aave v3, a bot operator with a daily budget, two-approval treasury payouts, an emergency exit, a guarded Safe, a timelocked cap change, putting a protocol's admin role behind Chainwall, an ETH treasury that wraps to WETH and pays fixed recipients, a Uniswap v3 swap desk, a token issuer with a metered minter, a USDG-style stablecoin issuer, or tenant governance (guardians, approved rule changes, tiered delays, delegated admin, admin rotation, owner handover).
 ---
 
 # Operate Chainwall
@@ -57,7 +57,10 @@ not the working directory.
   [swap-desk.md](references/swap-desk.md) (a desk that can only swap WETH
   and USDC through Uniswap v3 back to itself, with a minimum-out argument),
   [token-issuer.md](references/token-issuer.md) (a demo ERC-20 whose minter
-  is metered per 24 hours and whose burn and pause stay owner-only). Governance
+  is metered per 24 hours and whose burn and pause stay owner-only),
+  [usdg-issuer.md](references/usdg-issuer.md) (a USDG-style stablecoin whose
+  mint, burn, freeze and wipe run only through an issuance and a compliance
+  policy). Governance
   setups change who may change the rules; they share
   [governance.md](references/governance.md) and need no vault:
   [gov-guardians.md](references/gov-guardians.md) (a group that can pause and

@@ -1,0 +1,27 @@
+{
+  "setup": "usdg-issuer",
+  "network": {"chainId": 42161, "name": "Arbitrum One"},
+  "deploySalt": "usdg-issuer v1",
+  "accountSalt": "usdg-issuer v1",
+  "token": {
+    "contract": "contract/ChainwallStablecoin.sol",
+    "constructor": "(string name, string symbol, address registry, address controllerVault)",
+    "decimals": 6,
+    "defaultName": "Northstar Dollar",
+    "defaultSymbol": "NSD",
+    "forbiddenNames": ["Global Dollar", "USDG"],
+    "openzeppelin": "v5.3.0",
+    "solc": "0.8.36",
+    "selectors": {"mint": "0x40c10f19", "burn": "0x42966c68", "freeze": "0x8d1fdf2f", "unfreeze": "0x45c8b1a6", "wipeFrozenAddress": "0xe2f72f03"}
+  },
+  "catalog": {"defaultOrg": "northstar", "contractId": "usdg"},
+  "groups": {"usdg-minters": "issuance", "usdg-compliance": "burn, freeze, unfreeze, wipe"},
+  "policies": {
+    "usdg-issuance-policy": {"criteria": ["usdg-minters"], "thresholds": [1], "program": "issuance-policy.ls"},
+    "usdg-compliance-policy": {"criteria": ["usdg-compliance"], "thresholds": [1], "program": "compliance-policy.ls"}
+  },
+  "interactions": {"usdg-mint": "mint.ls", "usdg-burn": "burn.ls", "usdg-freeze": "freeze.ls", "usdg-unfreeze": "unfreeze.ls", "usdg-wipe": "wipe.ls"},
+  "meter": {"name": "usdg-mint-daily", "windowSeconds": 86400, "selector": "0x4671fe19"},
+  "defaults": {"mintCapBaseUnits": "1000000000000", "dailyMintLimitBaseUnits": "5000000000000"},
+  "executeCapability": "cap.registry.interaction.execute"
+}
