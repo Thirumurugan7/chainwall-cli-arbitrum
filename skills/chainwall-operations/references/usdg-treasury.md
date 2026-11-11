@@ -44,7 +44,9 @@ Ask the user, in one message:
   approvers and THRESHOLD 2 (2 of 3 with OWNER). OWNER alone with THRESHOLD 1
   is allowed; say plainly that it adds no second pair of eyes.
 - Limits in whole USDG: per payout (default 1000) and per 30 days (default
-  5000). Multiply by 1,000,000 for base units.
+  5000). Multiply by 1,000,000 for base units. For a first trial suggest
+  small limits, for example 3 per payout and 5 per 30 days, so the limits
+  can be reached with a few USDG; raising them later is a policy change.
 
 Each other approver needs about 0.0002 ETH on Arbitrum One.
 

@@ -28,7 +28,12 @@ takes `--rpc-url RPC`.
    `registry get-policy-meter-bucket POLICY METER 2592000 BUCKET VAULT32 0x00…00 0x00…00 0x00…00`
    (`BUCKET = block.timestamp / 2592000`, VAULT32 the vault left-padded, full
    32-byte zeros) reads 1000000.
-7. No other route: `registry get-interaction-count` equals the number of
+7. Budget (write for the proposal only, when the limits make it reachable):
+   OWNER proposes a payout that fits the cap but would take the 30 day total
+   above `{{monthlyLimit}}`; once approved, `operations simulate` fails with
+   `PolicyStateLimitExceeded`. `operations withdraw` it. Skip and say so when
+   the vault's balance or the limits make this impractical.
+8. No other route: `registry get-interaction-count` equals the number of
    recipients, and `interactions source` of each shows its recipient as a
    literal.
 
