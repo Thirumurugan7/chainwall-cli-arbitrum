@@ -21,7 +21,8 @@ takes `--rpc-url RPC`.
    `operations simulate pay-proposal.json --via account` fails ("operation not
    approved by required groups").
 5. Approvals (write, THRESHOLD above 1): A2 runs `operations approve OPID`
-   with its own `--account` and `--password-file` (the profile's are OWNER's);
+   with its own `--account`, signing the way the Signer section allows (the
+   profile's account is OWNER's);
    `operations status OPID` shows `approved: true`.
 6. Real payout (write, user's yes first): read the recipient's and VAULT's
    `balanceOf`; `operations simulate` → pass;

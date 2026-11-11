@@ -27,8 +27,9 @@ short opening message in plain words that fits what is actually left:
   when the instance exists); 5 USDC on Arbitrum One for the final test (not
   needed if Resume shows the real run already happened).
 - What they will do themselves, only the parts still needed: pick the keystore
-  (if there are several); give the keystore password once so the agent can
-  sign (or choose Touch ID or scripts instead); say yes to the terms (if not yet accepted) and to the real supply (if
+  (if there are several); approve each signature with Touch ID, or run the
+  signing scripts the agent prepares in their own terminal (the agent never
+  asks for the keystore password); say yes to the terms (if not yet accepted) and to the real supply (if
   not yet run); send 5 USDC to the vault (same condition). Everything else the
   agent does or prepares.
 - On a resumed run, say first what is already done and what is left, in one
@@ -36,7 +37,7 @@ short opening message in plain words that fits what is actually left:
 
 Explain any term the user must act on in a few words the first time it
 appears, for example: "a keystore is the encrypted file that holds your wallet
-key"; "the keystore password unlocks that key; I use it only to sign this setup"; "a timelock delay
+key"; "the keystore password unlocks that key; you type it only in your own terminal, never in this chat"; "a timelock delay
 makes rule changes wait 24 hours before they apply".
 
 Check the tools and stop with the exact fix when one is missing:
@@ -97,50 +98,25 @@ Resolve the keystore as the base skill says: `cast wallet list`; one entry is
 the signer, several means ask, none means stop (see Start here). When asking,
 offer the keystore named by the profile's `account` key first.
 
-Ask for the keystore password once. The agent's shell cannot answer a password
-prompt, and a fresh run has about 32 signatures (3 deploy stages, terms, user,
-group and member, policy, vault, 2 orgs, 2 contracts, token, program, 3
-interactions, capability, 10 delays, propose, execute). So, right after the opening message and before any write, ask:
+Never ask for the keystore password, never create a password file, and never
+use a password pasted into the chat (say it is exposed, tell the user to
+change it, and continue with one of the ways below). The agent's shell cannot
+answer a password prompt, and a fresh run has about 32 signatures (3 deploy
+stages, terms, user, group and member, policy, vault, 2 orgs, 2 contracts,
+token, program, 3 interactions, capability, 10 delays, propose, execute).
+Right after the opening message and before any write, settle how signing
+works, in the first way that applies, and say which:
 
-> "To sign the setup transactions without prompting you about 32 times, I need
-> the password of your `NAME` keystore once. I keep it only in a private
-> temporary file on this machine for this run and delete it when we finish.
-> It will be visible in this chat, so prefer a test or dev wallet; if you would
-> rather not share it, say so and I will use Touch ID or give you scripts to
-> run instead."
-
-Handle the password exactly like this:
-
-1. Create a private file: `PWFILE=$(mktemp -t chainwall-session)` (mode 600,
-   outside the project). Write the password into it with your file-writing
-   tool, as the only content with no trailing newline. Never put the password
-   in a shell command, an environment variable, a script, a log, the record
-   file, memory, or a later message; never repeat it back.
-2. Prove it works before any write:
-   `cast wallet address --account NAME --password-file "$PWFILE"` prints the
-   owner address (this is OWNER, and the proof that the keystore is that
-   address), and
-   `cast wallet sign --account NAME --password-file "$PWFILE" "chainwall signing check"`
-   prints a signature. If either fails, the password is wrong: empty the file,
-   say so, and ask once more.
-3. Pass `--account NAME --password-file "$PWFILE"` on every write (`chainwall`
-   writes and any `cast send`). Do not store the path in the profile.
-4. When the run ends, including when it stops early or fails, delete the file
-   (`rm -f "$PWFILE"`), confirm it is gone, and tell the user: "I deleted the
-   temporary password file. Your password was shown in this chat, so change it
-   if this is a wallet you use for real funds."
-
-Existing password file. If `chainwall config show` already lists
-`password_file` and that file exists, the user set it up earlier: do not ask
-for the password. Run the two checks in item 2 with that path, sign with it,
-and leave it in place at the end. Never open, print, move or delete a password
-file you did not create. If the path does not exist, tell the user in one line
-and ask for the password as above.
-
-If the user declines to share the password, use one of these instead and say
-which:
-
-- Touch ID (macOS). `cast wallet touch-id status NAME`; if not enrolled, the
+- Existing password file. If `chainwall config show` already lists
+  `password_file` and that file exists, the user set it up earlier. Prove it
+  before any write: `cast wallet address --account NAME --password-file PATH`
+  prints the owner address (this is OWNER, and the proof that the keystore is
+  that address), and
+  `cast wallet sign --account NAME --password-file PATH "chainwall signing check"`
+  prints a signature. Sign with it and leave it in place. Never open, print,
+  copy, move or delete it. If the path does not exist or a check fails, say so
+  in one line and use Touch ID or the user's terminal.
+- Touch ID, the default on macOS. `cast wallet touch-id status NAME`; if not enrolled, the
   user runs `cast wallet touch-id enroll NAME` once in their own terminal. Then
   the agent sends each write and the user approves each one on their Mac. Tell
   them the number of prompts and that nothing proceeds while one is unanswered.
@@ -149,7 +125,8 @@ which:
   timeout of about 120 seconds. No result in that time means the prompt was
   missed: stop and ask; send nothing until it works. Apply the same 120-second
   rule to every later write; ask the user, do not resend.
-- The user's own terminal. The agent dry-runs every write in a phase, then
+- The user's own terminal, the default elsewhere or when the user prefers
+  it. The agent dry-runs every write in a phase, then
   writes one shell script per phase (for example `step3-users.sh`,
   `step9-timelocks.sh`) that sends those writes in order with
   `set -euo pipefail`, saves each result with `--json | tee logs/NAME.json`,
@@ -161,7 +138,10 @@ which:
   writes). After each script, read its logs and verify on chain before writing
   the next one.
 
-Without a password or Touch ID, read the owner address by asking the user to
+A user who wants unattended signing can set `password_file` in the profile
+themselves, in their own terminal; do not ask for it.
+
+Without a password file or Touch ID, read the owner address by asking the user to
 run `cast wallet address --account NAME` in their own terminal and paste the
 address. Do not infer the owner from the Registry or old logs.
 
@@ -176,7 +156,8 @@ gas times that price, with a 2x margin. The fee is small, but a send reserves `g
 front and the factory stages are large (stage 1 estimates around 16.5M gas), so
 a stage can be refused on balance while the fee itself is affordable. If that
 happens, send that stage with `cast send` and an explicit tight `--gas-limit`
-and `--gas-price`, then bind the instance with `chainwall login ADDRESS`.
+and `--gas-price`, then bind the instance by logging in through its
+SafeFactory instance address (SKILL.md, "CLI behaviours").
 
 ## Profile
 
@@ -250,7 +231,7 @@ values, not text.
 | 3 Users | `users contains OWNER` | `true` |
 | 3 Group | `registry get-group-members GROUP` | `[["OWNER"]]` (exactly one member, case-insensitive) |
 | 3 Policy | `registry get-policy-criteria POLICY` | `[["GROUP"],["1"]]` |
-| 4 Vault | `registry get-account-count`, then `registry get-account-at 0` | count ≥ 1; the address is the vault (ask if count > 1) |
+| 4 Vault | `accounts create … --dry-run`, then `accounts inspect ADDRESS` | `accounts create --salt "usdc-aave-vault v1" --dry-run --from OWNER` prints the address this setup creates; done only when `accounts inspect` of that address shows a registered account. Never adopt another registered account as the vault: if that address has no account, create it (step 4), or use a different account only when the user names its address |
 | 5 Catalog | `registry get-address circle usdc`, `registry get-address aave pool-v3` | the setup.json addresses |
 | 7 Publish | `registry get-policy-program POLICY`; `registry get-interaction-keys-page 0 10`; `interactions source ID` for each | program bytes nonempty; all three interaction ids present; each source shows this vault, policy and (payout) owner |
 | 8 Capability | `registry get-capability-groups CAP` | contains GROUP |
@@ -298,7 +279,10 @@ command seems missing, check these before concluding it does not exist.
    (bootstrap, prepare, finalize). It does not resume: if this owner and salt
    were deployed before it fails with `DeploymentAlreadyStarted` and prints the
    Registry address. Then read `getInstance(address)` on the factory: a nonzero
-   `interact` means the instance is complete, so `chainwall login ADDRESS`;
+   `interact` means the instance is complete, so log in through its SafeFactory
+   instance address so the profile saves the Interact too (SKILL.md, "CLI
+   behaviours"; `chainwall login REGISTRY` alone leaves it unset and
+   operations fail with `InteractAddressRequired`);
    zero means resume with `chainwall deploy --stage prepare --registry ADDRESS`
    then `--stage finalize --registry ADDRESS`, each with its own `--out` file
    (`PathAlreadyExists` otherwise). If a stage broadcasts and the CLI times out

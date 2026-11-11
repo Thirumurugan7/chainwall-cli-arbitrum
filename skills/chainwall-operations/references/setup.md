@@ -33,6 +33,7 @@ chainwall profile use treasury
 chainwall config set chain 42161
 chainwall config set rpc_url "$RPC_URL"
 chainwall login "$REGISTRY_ADDRESS"
+chainwall config get interact   # empty on a fresh profile: see SKILL.md, "CLI behaviours"
 chainwall config show
 chainwall status --json
 ```

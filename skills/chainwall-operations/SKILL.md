@@ -103,24 +103,28 @@ write, run `cast wallet list`:
 - none: stop and tell the user to run `cast wallet new NAME` (or
   `cast wallet import NAME --interactive`) in their own terminal.
 
-Agent shells usually have no TTY, so Foundry cannot prompt for a password
-there. Default: ask the user once for the keystore password, write it only to a
-private temporary file (`mktemp`, mode 600, outside the project) with your
-file-writing tool, pass that path as `--password-file` on every signing
-command, and delete the file when the work ends. Never put the password in a
-shell command, environment variable, script, log, report or memory, and never
-repeat it back. Tell the user it will be visible in the chat and that a test
-or dev wallet is the safer choice. If the profile already has a working
-`password_file`, use it without asking and leave it in place; never open,
-print, move or delete a password file you did not create. If the user declines
-to share the password: on macOS they can enroll the keystore once with
-`cast wallet touch-id enroll NAME` (each signature then asks for Touch ID), or
-they run the signed commands in their own terminal when you hand them over.
-Read the owner address with `cast wallet address --account NAME` (add
-`--password-file` when you have one); if it cannot unlock the keystore, ask
-the user for the address instead. Check any Foundry command with
-`cast <command> --help` before showing it. The signer needs native currency for
-gas.
+Never ask for a keystore password or a private key, never create a password
+file, and never use one that is pasted into the chat: if that happens, say it
+is now exposed in the conversation, tell the user to change it, and carry on
+with one of the ways below. Agent shells have no TTY, so Foundry cannot prompt
+for a password there. Sign in the first way that applies:
+
+1. The profile already has a `password_file` that the user set up and it
+   works: the CLI uses it. Never open, print, copy, move or delete it.
+2. Touch ID, the default on macOS: `cast wallet touch-id status NAME`; if not
+   enrolled, the user runs `cast wallet touch-id enroll NAME` once in their
+   own terminal. Each signature then asks for their fingerprint.
+3. The user's own terminal, the default elsewhere: dry-run the writes, hand
+   them over as a script, and the user runs it; cast asks them for the
+   password there. Read the results and verify on chain afterwards.
+
+A user who wants unattended signing can set `password_file` in the profile
+themselves, in their own terminal; do not ask for it. Read the owner address
+with `cast wallet address --account NAME` (the profile's password file or
+Touch ID unlocks it); if it cannot unlock the keystore, ask the user to run
+it in their own terminal and paste the address. Check any Foundry command
+with `cast <command> --help` before showing it. The signer needs native
+currency for gas.
 
 ## CLI behaviours to expect
 
@@ -134,6 +138,13 @@ These hold on the current CLI; none of them is a failed setup.
   read reverts) or `"status": "unavailable"` with `RpcHttpFailure`. Treat the
   instance as complete when `getInstance(address)` on the factory, called
   with the Registry address, returns a nonzero Interact (the address the profile saves as `interact`).
+- `chainwall login REGISTRY` on a fresh profile saves no Interact, and
+  operations then fail with `InteractAddressRequired`. `getInstance` returns
+  eight 32-byte words: word 4 is Interact, word 5 the SafeFactory instance.
+  Check `cast call INTERACT "registry()(address)"` returns the Registry,
+  then `chainwall login SAFEFACTORY`, which saves both. `chainwall config get
+  interact` must print the Interact; if it is empty,
+  `chainwall config set interact INTERACT`.
 - A write that ends in a bare `TransactionFailed` with no hash: read
   `cast nonce SIGNER`. Unchanged means nothing was broadcast; resend once.
   Changed means it was sent; recover the receipt, never resend. The same

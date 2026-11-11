@@ -100,7 +100,8 @@ incomplete, or targets anything else.
    OKFactory, then send it (three stages). `deploy` does not resume: for an
    owner and salt deployed before it fails with `DeploymentAlreadyStarted` and
    prints the Registry address; read `getInstance(address)` on the factory with that Registry address,
-   `chainwall login ADDRESS` if `interact` is nonzero, else resume with
+   log in through the SafeFactory instance address if `interact` is nonzero
+   (SKILL.md, "CLI behaviours"), else resume with
    `--stage prepare` then `--stage finalize --registry ADDRESS`, each with its
    own `--out`. Show the terms (`terms document --out terms.md`) and `terms accept-terms --document-file terms.md`
    only on the user's yes.
