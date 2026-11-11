@@ -1,0 +1,21 @@
+{
+  "setup": "usdg-treasury",
+  "network": {"chainId": 42161, "name": "Arbitrum One"},
+  "deploySalt": "usdg-treasury v1",
+  "accountSalt": "usdg-treasury v1",
+  "token": {
+    "catalog": "paxos/usdg",
+    "address": "0x004B506865409877C9fA29bfb1ebA929984B9bbC",
+    "symbol": "USDG",
+    "name": "Global Dollar",
+    "decimals": 6,
+    "issuer": "Paxos; mint, burn, freeze, wipe and pause belong to the issuer"
+  },
+  "group": "usdg-treasury",
+  "policy": {"name": "usdg-treasury-policy", "criteria": ["usdg-treasury"], "defaultThreshold": 2, "program": "treasury-policy.ls"},
+  "interactionsPattern": "usdg-pay-<label> from pay.ls, one per recipient (one or two recipients)",
+  "meter": {"id": "usdg-treasury-monthly", "windowSeconds": 2592000, "selector": "0x4671fe19"},
+  "defaults": {"perPayoutCapBaseUnits": "1000000000", "monthlyLimitBaseUnits": "5000000000"},
+  "executeCapability": "cap.registry.interaction.execute",
+  "approverMinBalanceWei": "200000000000000"
+}

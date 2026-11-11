@@ -1,6 +1,6 @@
 ---
 name: chainwall-operations
-description: Set up and operate Chainwall vaults, Safes, and onchain automation on Arbitrum One through the native CLI. Use for tenant onboarding, holdings reports, Lambdascript interactions, approval policies, execution, operational recovery, and complete builds such as a guarded USDC vault on Aave v3, a bot operator with a daily budget, two-approval treasury payouts, an emergency exit, a guarded Safe, a timelocked cap change, putting a protocol's admin role behind Chainwall, an ETH treasury that wraps to WETH and pays fixed recipients, a Uniswap v3 swap desk, a token issuer with a metered minter, a USDG-style stablecoin issuer, or tenant governance (guardians, approved rule changes, tiered delays, delegated admin, admin rotation, owner handover).
+description: Set up and operate Chainwall vaults, Safes, and onchain automation on Arbitrum One through the native CLI. Use for tenant onboarding, holdings reports, Lambdascript interactions, approval policies, execution, operational recovery, and complete builds such as a guarded USDC vault on Aave v3, a bot operator with a daily budget, two-approval treasury payouts, an emergency exit, a guarded Safe, a timelocked cap change, putting a protocol's admin role behind Chainwall, an ETH treasury that wraps to WETH and pays fixed recipients, a Uniswap v3 swap desk, a token issuer with a metered minter, a USDG treasury vault, a USDG-style stablecoin issuer, or tenant governance (guardians, approved rule changes, tiered delays, delegated admin, admin rotation, owner handover).
 ---
 
 # Operate Chainwall
@@ -59,7 +59,9 @@ not the working directory.
   [token-issuer.md](references/token-issuer.md) (a demo ERC-20 whose minter
   is metered per 24 hours and whose burn and pause stay owner-only),
   [usdg-issuer.md](references/usdg-issuer.md) (a USDG-style stablecoin run by four departments:
-  issuance, redemption, compliance and governance, each under its own policy). Governance
+  issuance, redemption, compliance and governance, each under its own policy),
+  [usdg-treasury.md](references/usdg-treasury.md) (a vault for real USDG that
+  pays only fixed recipients, with approvals, a cap and a 30 day budget). Governance
   setups change who may change the rules; they share
   [governance.md](references/governance.md) and need no vault:
   [gov-guardians.md](references/gov-guardians.md) (a group that can pause and
