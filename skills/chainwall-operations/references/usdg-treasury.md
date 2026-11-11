@@ -25,8 +25,11 @@ catalog another token under that name.
 
 - Chainwall controls what the vault does with its USDG. It does not control
   USDG: the issuer can pause the token or freeze any address, the vault
-  included, and a payout then fails at the token call (`ERR_04`). Read
-  `paused()` and `isFrozen(VAULT)` on the token when that happens.
+  included, and a payout then fails at the token call (`ERR_04`). An
+  exhausted budget also shows as `ERR_04`, because the meter is a call to
+  the Registry. To tell them apart read `paused()` and `isFrozen(VAULT)` on
+  the token and the meter bucket, or trace the call
+  (`cast call INTERACT CALLDATA --from OWNER --trace`).
 - The vault receives USDG by an ordinary transfer to its address.
 - The proposer's approval counts as one; the others approve with
   `operations approve`. Membership is read live at execution.

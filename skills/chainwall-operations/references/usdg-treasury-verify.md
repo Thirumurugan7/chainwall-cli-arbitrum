@@ -19,7 +19,8 @@ takes `--rpc-url RPC`.
    `operations status OPID` shows `approved: false` and
    `operations simulate pay-proposal.json --via account` fails ("operation not
    approved by required groups").
-5. Approvals (write, THRESHOLD above 1): A2 runs `operations approve OPID`;
+5. Approvals (write, THRESHOLD above 1): A2 runs `operations approve OPID`
+   with its own `--account` and `--password-file` (the profile's are OWNER's);
    `operations status OPID` shows `approved: true`.
 6. Real payout (write, user's yes first): read the recipient's and VAULT's
    `balanceOf`; `operations simulate` → pass;
@@ -28,10 +29,13 @@ takes `--rpc-url RPC`.
    `registry get-policy-meter-bucket POLICY METER 2592000 BUCKET VAULT32 0x00…00 0x00…00 0x00…00`
    (`BUCKET = block.timestamp / 2592000`, VAULT32 the vault left-padded, full
    32-byte zeros) reads 1000000.
-7. Budget (write for the proposal only, when the limits make it reachable):
-   OWNER proposes a payout that fits the cap but would take the 30 day total
-   above `{{monthlyLimit}}`; once approved, `operations simulate` fails with
-   `PolicyStateLimitExceeded`. `operations withdraw` it. Skip and say so when
+7. Budget (writes: propose, approve, withdraw; nothing executes; only when
+   the limits make it reachable): OWNER proposes a payout that fits the cap
+   but would take the 30 day total above `{{monthlyLimit}}`; A2 approves;
+   `operations simulate` fails with an undecoded `ERR_04`, and
+   `cast call INTERACT CALLDATA --from OWNER --trace` (calldata from the
+   simulation report) shows `PolicyStateLimitExceeded`. `operations withdraw`
+   it. Skip and say so when
    the vault's balance or the limits make this impractical.
 8. No other route: `registry get-interaction-count` equals the number of
    recipients, and `interactions source` of each shows its recipient as a
