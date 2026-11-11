@@ -1,10 +1,67 @@
 {
-  $require($subjectPolicy == {{issuancePolicyId}}),
-  $require($subjectVault == {{vault}}),
-  $require($subjectId == {{mintId}}),
-  $require($subjectNativeValue == 0),
-  $require($subjectArgCount == 2),
-  $require($subjectArg(0) != 0),
-  $require($subjectArg(1) > 0 && $subjectArg(1) <= {{mintCap}}),
-  $require($write({{registryWord}}, 0x4671fe19, {$subjectPolicy, {{meterId}}, 86400, $subjectArg(1), {{dailyMintLimit}}, $subjectVault, 0x0000000000000000000000000000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000000000000000000000000000000, 0x0000000000000000000000000000000000000000000000000000000000000000}))
+  $require(($subjectPolicy == {{issuancePolicyId}})),
+  {
+    $require(($subjectVault == {{vaultWord}})),
+    {
+      $require(($address({{coinKey}}) == {{coinWord}})),
+      {
+        $require(($subjectNativeValue == 0)),
+        {
+          $require(($subjectId == {{mintId}})),
+          {
+            $require(($subjectArgCount == 2)),
+            {
+              let $shared12 = $subjectArg(1),
+              {
+                $require(IF(($shared12 > 0),
+                ($shared12 <= {{mintCap}}),
+                false)),
+                {
+                  let $shared16 = $read({{coinKey}},
+                  404098525),
+                  {
+                    let $shared18 = $read({{registryWord}},
+                    83875018,
+                    {
+                      $subjectPolicy,
+                      {{limitsNamespace}},
+                      {{vaultWord}},
+                      {{capKey}}
+                    }),
+                    {
+                      $require(($shared16 <= $shared18)),
+                      {
+                        $require(($shared12 <= ($shared18 - $shared16))),
+                        {
+                          $require($read({{registryWord}},
+                          4252186875,
+                          {
+                            {{clientsGroupId}},
+                            $subjectArg(0)
+                          })),
+                          $write({{registryWord}},
+                          1181875737,
+                          {
+                            $subjectPolicy,
+                            {{meterId}},
+                            86400,
+                            $shared12,
+                            {{dailyMintLimit}},
+                            {{vaultWord}},
+                            {{coinWord}},
+                            0,
+                            0
+                          })
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

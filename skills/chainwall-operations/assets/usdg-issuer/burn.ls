@@ -1,5 +1,5 @@
 {
-  $require($subjectPolicy == {{compliancePolicyId}}),
+  $require($subjectPolicy == {{redemptionPolicyId}}),
   $require($subjectVault == {{vault}}),
   $require($subjectNativeValue == 0),
   $require($subjectArgCount == 1),

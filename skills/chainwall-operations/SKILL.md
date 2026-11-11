@@ -58,9 +58,8 @@ not the working directory.
   and USDC through Uniswap v3 back to itself, with a minimum-out argument),
   [token-issuer.md](references/token-issuer.md) (a demo ERC-20 whose minter
   is metered per 24 hours and whose burn and pause stay owner-only),
-  [usdg-issuer.md](references/usdg-issuer.md) (a USDG-style stablecoin whose
-  mint, burn, freeze and wipe run only through an issuance and a compliance
-  policy). Governance
+  [usdg-issuer.md](references/usdg-issuer.md) (a USDG-style stablecoin run by four departments:
+  issuance, redemption, compliance and governance, each under its own policy). Governance
   setups change who may change the rules; they share
   [governance.md](references/governance.md) and need no vault:
   [gov-guardians.md](references/gov-guardians.md) (a group that can pause and

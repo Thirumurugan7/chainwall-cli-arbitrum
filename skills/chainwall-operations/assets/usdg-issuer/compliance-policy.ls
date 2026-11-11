@@ -1,7 +1,19 @@
 {
-  $require($subjectPolicy == {{compliancePolicyId}}),
-  $require($subjectVault == {{vault}}),
-  $require($subjectId == {{burnId}} || $subjectId == {{freezeId}} || $subjectId == {{unfreezeId}} || $subjectId == {{wipeId}}),
-  $require($subjectNativeValue == 0),
-  $require($subjectArgCount == 1)
+  $require(($subjectPolicy == {{compliancePolicyId}})),
+  {
+    $require(($subjectVault == {{vaultWord}})),
+    {
+      $require(($address({{coinKey}}) == {{coinWord}})),
+      {
+        $require(($subjectNativeValue == 0)),
+        {
+          $require(($subjectId == {{freezeId}})),
+          {
+            $require(($subjectArgCount == 1)),
+            1
+          }
+        }
+      }
+    }
+  }
 }
