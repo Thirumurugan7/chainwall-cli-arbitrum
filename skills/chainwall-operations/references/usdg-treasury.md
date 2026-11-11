@@ -46,10 +46,13 @@ Ask the user, in one message:
 - The other approvers' addresses (EOAs) and THRESHOLD. Default: two other
   approvers and THRESHOLD 2 (2 of 3 with OWNER). OWNER alone with THRESHOLD 1
   is allowed; say plainly that it adds no second pair of eyes.
-- Limits in whole USDG: per payout (default 1000) and per 30 days (default
-  5000). Multiply by 1,000,000 for base units. For a first trial suggest
-  small limits, for example 3 per payout and 5 per 30 days, so the limits
-  can be reached with a few USDG; raising them later is a policy change.
+- Limits in whole USDG: per payout (default 10000) and per 30 days (default
+  50000). Multiply by 1,000,000 for base units. The 30 day limit must be at
+  least the per payout limit. Changing either later is a policy change and
+  waits for the delay.
+- TEST: the size in whole USDG of the one real payout that ends this setup
+  (default 100). It goes to the first recipient, must not exceed the per
+  payout limit and counts against the first 30 day budget.
 
 Each other approver needs about 0.0002 ETH on Arbitrum One.
 
@@ -95,7 +98,7 @@ Compile the program with `policies program compile`.
    for each recipient. `--id` is required.
 7. `capabilities grant-capability-group` of
    `chainwall id cap.registry.interaction.execute` to the group.
-8. Funding: tell the user "Send at least 2 USDG on Arbitrum One to VAULT,
+8. Funding: tell the user "Send at least TEST USDG on Arbitrum One to VAULT,
    then tell me when it's sent." Do not move the user's funds yourself.
    Confirm with `balanceOf(VAULT)` on the token.
 9. Run [usdg-treasury-verify.md](usdg-treasury-verify.md).
@@ -107,7 +110,7 @@ the terms, before step 7, before the real payout and before step 10.
 ## Finish
 
 `usdg-treasury-record.md`: network, Registry, Interact, VAULT, the token
-facts as read, group members, THRESHOLD, recipients, limits, interaction
+facts as read, group members, THRESHOLD, recipients, limits, TEST, interaction
 ids, every transaction hash, the approval sequence and balances before and
 after the test payout, the vault setup's step 10 reads, and a table of who
 can do what.

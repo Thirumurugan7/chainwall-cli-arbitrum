@@ -144,6 +144,8 @@ These hold on the current CLI; none of them is a failed setup.
   transaction. Check `accounts inspect` at the dry run's predicted address
   before any retry.
 - A read straight after a confirmed write can be stale once; read again.
+- Run multi-step commands under `bash -c`: zsh does not word-split unquoted
+  variables. `cast receipt HASH` can wait for minutes; add `--async`.
 - Fees: the CLI can choose a tip far above what `--estimate` shows. Cap it
   on any write with `--max-fee AMOUNT --priority-fee AMOUNT` (wei or gwei),
   for example twice `cast gas-price`.

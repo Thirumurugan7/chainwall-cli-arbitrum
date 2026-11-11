@@ -15,7 +15,7 @@
   "policy": {"name": "usdg-treasury-policy", "criteria": ["usdg-treasury"], "defaultThreshold": 2, "program": "treasury-policy.ls"},
   "interactionsPattern": "usdg-pay-<label> from pay.ls, one per recipient (one or two recipients)",
   "meter": {"id": "usdg-treasury-monthly", "windowSeconds": 2592000, "selector": "0x4671fe19"},
-  "defaults": {"perPayoutCapBaseUnits": "1000000000", "monthlyLimitBaseUnits": "5000000000"},
+  "defaults": {"perPayoutCapBaseUnits": "10000000000", "monthlyLimitBaseUnits": "50000000000", "testPayoutBaseUnits": "100000000"},
   "executeCapability": "cap.registry.interaction.execute",
   "approverMinBalanceWei": "200000000000000"
 }

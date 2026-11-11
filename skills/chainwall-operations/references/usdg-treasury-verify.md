@@ -1,20 +1,21 @@
 # Verify usdg-treasury
 
 A is the first recipient's label, A2 a second approver. Amounts are base
-units (6 decimals). Simulations are
+units (6 decimals); TEST is the test payout in base units. Simulations are
 `policies program simulate usdg-treasury-policy context.json` with the
 `policy-context` shape from usdc-aave-vault-verify.md. Every `cast call`
 takes `--rpc-url RPC`.
 
 1. Token (read-only): `symbol()`, `name()`, `decimals()` as the setup states;
    `paused()` false; `isFrozen(VAULT)` false; `balanceOf(VAULT)` at least
-   1000000.
-2. Program: `usdg-pay-A` with `["1000000"]` → pass; `{{cap}} + 1` → reject
+   TEST.
+2. Program: `usdg-pay-A` with `["TEST"]` → pass; `{{cap}}` → pass;
+   `{{cap}} + 1` → reject
    (`ERR_01`); an interaction id that is not a pay interaction → reject.
-3. Outsider: `cast call INTERACT "executeFromAccount(uint256,bytes32,uint256[],uint256)" 999999 PAY_A_ID "[1000000]" 100000 --from 0x000000000000000000000000000000000000dEaD`
+3. Outsider: `cast call INTERACT "executeFromAccount(uint256,bytes32,uint256[],uint256)" 999999 PAY_A_ID "[TEST]" 100000 --from 0x000000000000000000000000000000000000dEaD`
    → "caller is not a user".
 4. Propose (write, OWNER): `operations propose` `usdg-pay-A`, args
-   `["1000000"]`, safe VAULT, policyId the treasury policy, deadline now +
+   `["TEST"]`, safe VAULT, policyId the treasury policy, deadline now +
    86400, `--out pay-proposal.json`. With THRESHOLD above 1:
    `operations status OPID` shows `approved: false` and
    `operations simulate pay-proposal.json --via account` fails ("operation not
@@ -24,11 +25,11 @@ takes `--rpc-url RPC`.
    `operations status OPID` shows `approved: true`.
 6. Real payout (write, user's yes first): read the recipient's and VAULT's
    `balanceOf`; `operations simulate` → pass;
-   `operations execute pay-proposal.json --via account`. Recipient +1000000,
-   VAULT −1000000, operation closed. Meter:
+   `operations execute pay-proposal.json --via account`. Recipient +TEST,
+   VAULT −TEST, operation closed. Meter:
    `registry get-policy-meter-bucket POLICY METER 2592000 BUCKET VAULT32 0x00…00 0x00…00 0x00…00`
    (`BUCKET = block.timestamp / 2592000`, VAULT32 the vault left-padded, full
-   32-byte zeros) reads 1000000.
+   32-byte zeros) reads TEST.
 7. Budget (writes: propose, approve, withdraw; nothing executes; only when
    the limits make it reachable): OWNER proposes a payout that fits the cap
    but would take the 30 day total above `{{monthlyLimit}}`; A2 approves;
