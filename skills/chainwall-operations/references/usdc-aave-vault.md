@@ -65,7 +65,8 @@ stop and say so.
 - RPC: the one in the profile, else `https://arb1.arbitrum.io/rpc`. Before the
   first deploy send, run `deploy … --estimate --from OWNER`; it must print
   `"balanceSufficient": true`. If the RPC rejects the estimate ("The RPC
-  rejected a read"), switch to another Arbitrum One RPC that passes it before
+  rejected a read") and this owner and salt were never deployed (SKILL.md,
+  "Finding an earlier instance"), switch to another Arbitrum One RPC that passes it before
   anything is sent (set `rpc.42161` as well as `rpc_url`, see SKILL.md).
 - Factory: bundled with the CLI for Arbitrum One; nothing to configure.
 - Record file: `usdc-vault-record.md`; setups that extend this vault append
@@ -95,8 +96,9 @@ things listed under "What they will do themselves" in Start here.
 ## Signer
 
 Resolve the keystore as the base skill says: `cast wallet list`; one entry is
-the signer, several means ask, none means stop (see Start here). When asking,
-offer the keystore named by the profile's `account` key first.
+the signer, several means ask, none means stop (see Start here). If the
+profile's `account` key names an existing keystore, that is NAME: use it
+without asking.
 
 Never ask for the keystore password, never create a password file, and never
 use a password pasted into the chat (say it is exposed, tell the user to
@@ -211,8 +213,11 @@ else.
 ## Resume: check state before any write
 
 People rerun this setup after a partial attempt. If the profile binds no
-instance on the network's chain, nothing is done yet: skip this section and start at step 1.
-Otherwise run `chainwall status` and the reads below, with ids from
+instance on the network's chain, check without sending anything whether this
+owner and salt were deployed before (SKILL.md, "Finding an earlier
+instance"). Never deployed: nothing is done yet, skip this section and start
+at step 1. Deployed: bind the profile as step 1 says, then continue here.
+Then run `chainwall status` and the reads below, with ids from
 `chainwall id`, and show the user a table of which steps are done. Skip a step
 only when its read shows exactly the setup's values; if a read shows something
 else (another vault, another member, a different program), stop and ask rather
@@ -222,7 +227,15 @@ Use only live chain reads here. `users list`, `timelocks list` and `search`
 read the local SQLite cache, which can be a day or more old. Some reads print a
 bare value (`1`, `true`, an address); reads that return arrays or tuples print
 nested JSON such as `[[…]]`, with bytes32 values as quoted strings. Compare
-values, not text.
+values, not text. A read that fails because the thing is missing
+(`PolicyNotFound`, `NoAddressFound`, `InteractionMissing`, `InstanceHasNoCode`
+from `accounts inspect`) means that step is not done; it is not a broken
+profile.
+
+If the delays (step 9) are already set while earlier steps are not done, stop
+and tell the user: every remaining rule change will queue for the delay, one
+after another. Go on only if they choose that; a fresh owner or instance is
+the faster path.
 
 | Step | Live read | Done when |
 | --- | --- | --- |
@@ -231,7 +244,7 @@ values, not text.
 | 3 Users | `users contains OWNER` | `true` |
 | 3 Group | `registry get-group-members GROUP` | `[["OWNER"]]` (exactly one member, case-insensitive) |
 | 3 Policy | `registry get-policy-criteria POLICY` | `[["GROUP"],["1"]]` |
-| 4 Vault | `accounts create … --dry-run`, then `accounts inspect ADDRESS` | `accounts create --salt "usdc-aave-vault v1" --dry-run --from OWNER` prints the address this setup creates; done only when `accounts inspect` of that address shows a registered account. Never adopt another registered account as the vault: if that address has no account, create it (step 4), or use a different account only when the user names its address |
+| 4 Vault | `accounts create … --dry-run`, then `accounts inspect ADDRESS` | `accounts create --salt "usdc-aave-vault v1" --dry-run --from OWNER` prints the address this setup creates; done only when `accounts inspect` of that address shows a registered account. Never adopt another registered account as the vault: if that address has no account, create it (step 4), or use a different account only when the user names its address. `accounts get-account-count` and `accounts get-account-page 0 10` list what else is registered |
 | 5 Catalog | `registry get-address circle usdc`, `registry get-address aave pool-v3` | the setup.json addresses |
 | 7 Publish | `registry get-policy-program POLICY`; `registry get-interaction-keys-page 0 10`; `interactions source ID` for each | program bytes nonempty; all three interaction ids present; each source shows this vault, policy and (payout) owner |
 | 8 Capability | `registry get-capability-groups CAP` | contains GROUP |

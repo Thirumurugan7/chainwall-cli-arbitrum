@@ -104,6 +104,10 @@ Compile the program with `policies program compile`.
 9. Run [usdg-treasury-verify.md](usdg-treasury-verify.md).
 10. Delays, only after the verify file has passed: the vault setup's step 9.
 
+On a resumed run, `accounts activity VAULT` with a record whose
+`interactionId` is a `usdg-pay-<label>` id means the test payout already ran:
+do not run it again.
+
 Dry-run every Chainwall write and show it. Pause for the user's yes before
 the terms, before step 7, before the real payout and before step 10.
 

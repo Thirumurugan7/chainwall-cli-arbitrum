@@ -140,11 +140,20 @@ These hold on the current CLI; none of them is a failed setup.
   with the Registry address, returns a nonzero Interact (the address the profile saves as `interact`).
 - `chainwall login REGISTRY` on a fresh profile saves no Interact, and
   operations then fail with `InteractAddressRequired`. `getInstance` returns
-  eight 32-byte words: word 4 is Interact, word 5 the SafeFactory instance.
-  Check `cast call INTERACT "registry()(address)"` returns the Registry,
-  then `chainwall login SAFEFACTORY`, which saves both. `chainwall config get
-  interact` must print the Interact; if it is empty,
+  eight 32-byte words; counting the first as 1, word 4 is Interact and word
+  5 the SafeFactory instance. Confirm before use:
+  `cast call SAFEFACTORY "INTERACT_CONTRACT()(address)"` returns that
+  Interact. Then `chainwall login SAFEFACTORY`, which saves both.
+  `chainwall config get interact` must print the Interact; if it is empty,
   `chainwall config set interact INTERACT`.
+- Finding an earlier instance without sending anything: take `to` and `data`
+  from `deploy … --dry-run` (same owner and salt) and run
+  `cast call TO DATA --from OWNER`. An empty result means this owner and salt
+  were never deployed. A revert `DeploymentKeyAlreadyUsed(bytes32,address)`
+  (selector `0x3c750475`) means they were: the last 20 bytes of the revert
+  data are the Registry. On that owner and salt `deploy … --estimate` prints
+  "The RPC rejected a read" and a send fails with `DeploymentAlreadyStarted`;
+  neither is an RPC problem.
 - A write that ends in a bare `TransactionFailed` with no hash: read
   `cast nonce SIGNER`. Unchanged means nothing was broadcast; resend once.
   Changed means it was sent; recover the receipt, never resend. The same
